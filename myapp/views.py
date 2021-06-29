@@ -1,4 +1,3 @@
-import enum
 from django.shortcuts import render,HttpResponse
 from tap import settings
 from win32com.client import Dispatch
@@ -19,6 +18,11 @@ from django.http import JsonResponse
 from rest_framework import status
 
 # Create your views here.
+
+APP_ID = '24414511'
+API_KEY = 'OUogI3CydVfG54yeK4NwnYQt'
+SECRET_KEY = 'swhZn760fvuTAvppUHbCC3CAkRK7Xngw'
+
 
 ###保存到服务端excel，下载到本地excel
 def download(n,sixth):
@@ -108,9 +112,6 @@ def ResizeImage(path2):
 
 ### 读取图片指标
 def get_file_content(filepath):
-    APP_ID = '24269656'
-    API_KEY = '5oXOngw1HxCdZqsDKkWDhB3M'
-    SECRET_KEY = 'WGIKYNOkAB3x1WdR4qYVENpNEo9TLRQa'
     
     client = AipOcr(APP_ID, API_KEY, SECRET_KEY)
     with open(filepath, 'rb') as fp:
@@ -296,3 +297,211 @@ def tap(text):
     res.append(fifth)
 
     return res
+
+
+###修改图片尺寸
+def ResizeImage2(path2):
+    filein = path2
+    fileout = path2
+    width = 2350
+    height = 3000
+    img = Image.open(filein)
+    out = img.resize((width, height),Image.ANTIALIAS)
+    out.save(fileout)
+    img.close()
+
+### 读取图片指标
+def get_file_content2(filepath):
+
+    ResizeImage2(filepath)
+
+    
+    client = AipOcr(APP_ID, API_KEY, SECRET_KEY)
+    with open(filepath, 'rb') as fp:
+        image = fp.read()
+    fp.close()
+     # 定义参数变量
+    options = {
+        # 定义图像方向
+        'detect-direction': 'true',
+        'language-type': 'CHN_ENG'
+    }
+    result = client.general(image, options)
+    f=open('压力分析结果.txt','w')
+    for word in result['words_result']:
+        f.write(word['words'])
+    f.close()
+
+
+def tap2(res):
+    res_dict={}
+    ###姓名
+    try:
+        res_dict['姓名']=re.findall('姓名(.+)性别',res,re.S)[0]
+    except:
+        res_dict['姓名']='获取失败'
+    ###性别、年龄
+    try:
+        res_dict['性别/年龄']=re.findall('性别/年龄(.+)发送',res,re.S)[0]
+    except:
+        res_dict['性别/年龄']='获取失败'
+    ###发送日期
+    try:
+        send_date=list(re.findall('发送日期(.+)40140',res,re.S)[0])
+        send_date.insert(10,'  ')
+        res_dict['发送日期']=''.join(send_date)
+    except:
+        res_dict['发送日期']='获取失败'
+    ###平均心率
+    try:
+        res_dict['平均心率']=re.findall('平均心率(\d+)',res,re.S)[0]
+    except:
+        res_dict['平均心率']='获取失败'
+    ###异常心率
+    try:
+        res_dict['异常心率']=re.findall('异常心率(\d+)',res,re.S)[0]
+    except:
+        res_dict['异常心率']='获取失败'
+    ###身体上压力
+    try:
+        res_dict['身体上压力']=re.findall('身体上压力:(\d+)',res,re.S)[0]
+    except:
+        res_dict['身体上压力']='获取失败'
+    ###精神上压力
+    try:
+        res_dict['精神上压力']=re.findall('精神上压力:(\d+)',res,re.S)[0]
+    except:
+        res_dict['精神上压力']='获取失败'
+    ###压力指数
+    try:
+        res_dict['压力指数']=re.findall('压力指数:(\d+)',res,re.S)[0]
+    except:
+        res_dict['压力指数']='获取失败'
+    ###抗压能力
+    try:
+        res_dict['抗压能力']=re.findall('抗压能力:(\d+)',res,re.S)[0]
+    except:
+        res_dict['抗压能力']='获取失败'
+    ###动脉血管弹性度
+    try:
+        res_dict['动脉血管弹性度']=re.findall('动脉血管弹性度:(\d+)',res,re.S)[0]
+    except:
+        res_dict['动脉血管弹性度']='获取失败'
+    ###末梢血管弹性度
+    try:
+        res_dict['末梢血管弹性度']=re.findall('末梢血管弹性度:(\d+)',res,re.S)[0]
+    except:
+        res_dict['末梢血管弹性度']='获取失败'
+    ###第1阶段-
+    try:
+        res_dict['第1阶段']=re.findall('第1阶段.?(\d+.\d+)',res,re.S)[0]+'%'
+    except:
+        res_dict['第1阶段']='获取失败'
+    ###第2阶段-
+    try:
+        res_dict['第2阶段']=re.findall('第2阶段.?(\d+.\d+)',res,re.S)[0]+'%'
+    except:
+        res_dict['第2阶段']='获取失败'
+    ###第3阶段-
+    try:
+        res_dict['第3阶段']=re.findall('第3阶段.?(\d+.\d+)',res,re.S)[0]+'%'
+    except:
+        res_dict['第3阶段']='获取失败'
+    ###第4阶段-
+    try:
+        res_dict['第4阶段']=re.findall('第4阶段.?(\d+.\d+)',res,re.S)[0]+'%'
+    except:
+        res_dict['第4阶段']='获取失败'
+    ###第5阶段-
+    try:
+        res_dict['第5阶段']=re.findall('第5阶段.?(\d+.\d+)',res,re.S)[0]+'%'
+    except:
+        res_dict['第5阶段']='获取失败'
+    ###第6阶段-
+    try:
+        res_dict['第6阶段']=re.findall('第6阶段.?(\d+.\d+)',res,re.S)[0]+'%'
+    except:
+        res_dict['第6阶段']='获取失败'
+    ###第7阶段-
+    try:
+        res_dict['第7阶段']=re.findall('第7阶段.?(\d+.\d+)',res,re.S)[0]+'%'
+    except:
+        res_dict['第7阶段']='获取失败'
+    ###血管分数:
+    try:
+        res_dict['血管分数']=re.findall('血管分数:(\d+)',res,re.S)[0]
+    except:
+        res_dict['血管分数']='获取失败'
+    ###综合结果
+    syn_res=re.findall('综合结果(.+)',res,re.S)[0]
+    ###综合结果-平均心率
+    try:
+        res_dict['综合结果-平均心率']=re.findall('平均心率(.+)。?压力',syn_res)[0]
+    except:
+        res_dict['综合结果-平均心率']='获取失败'
+    ###综合结果-压力
+    try:
+        res_dict['综合结果-压力']=re.findall('。?压力(.+)。?血管健康',syn_res)[0]
+    except:
+        res_dict['综合结果-压力']='获取失败'
+    ###综合结果-血管健康
+    try:
+        res_dict['综合结果-血管健康']=re.findall('。?血管健康(.+)。?建议',syn_res)[0]
+    except:
+        res_dict['综合结果-血管健康']='获取失败'
+    ###综合结果-建议
+    try:
+        res_dict['综合结果-建议']=re.findall('。?建议(.+)',syn_res)[0]
+    except:
+        res_dict['综合结果-建议']='获取失败'
+    
+    return res_dict
+
+
+###视图函数
+def index2(request):
+    if request.method == "POST":
+        img = request.FILES.get("img")
+        if img.name[-3:]=='png':
+            path2 = os.path.join(settings.STATICFILES_DIRS[0],'img/'+img.name)
+            
+            with open(path2,'wb') as fp:
+                if img.multiple_chunks: #判断到上传文件为大于2.5MB的大文件
+                    for buf in img.chunks(): #迭代写入文件
+                        fp.write(buf)
+                else:
+                    fp.write(img.read())
+            fp.close()
+            
+            get_file_content2(path2)
+
+            f=open('压力分析结果.txt','r')
+            content=f.readlines()
+            f.close()
+            res_dict=tap2(''.join(content))
+
+            question,answer=[],[]
+            for key,value in res_dict.items():
+                question.append(key)
+                answer.append(value)
+
+            b=numpy.array([question,answer])
+
+            path_ = os.path.join(settings.STATICFILES_DIRS[0],'excel/')
+            writer=pandas.ExcelWriter("{}{}.xlsx".format(path_,answer[0]))
+
+            df=pandas.DataFrame(b)
+
+            df.to_excel(writer,header=False,columns=None,index=False)
+
+            writer.save()
+            download_file_path="{}{}.xlsx".format(path_,answer[0])
+            response = big_file_download(download_file_path,answer[0]+'.xlsx')
+            
+            if response:
+                return response
+        else:
+            return HttpResponse('请选择后缀为png的文件')
+    return render(request, 'index2.html',locals())
+
+

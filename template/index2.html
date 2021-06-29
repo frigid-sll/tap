@@ -1,0 +1,14 @@
+<!DOCTYPE html> 
+<html lang="en"> 
+    <head>    
+        <meta charset="UTF-8">    
+        <title>hi</title> 
+    </head> 
+    <body>    
+        <form action="/2/" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            请选择图片：<input type="file" name="img" /><br><br>
+            <input type="submit" value="提交">
+        </form> 
+    </body> 
+</html>
